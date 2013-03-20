@@ -1,0 +1,19 @@
+ private HashMap<String, Method> methodBySignature = new HashMap<>();
+
+    public CalculatorSolver() {
+        Reflections ref = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forJavaClassPath()));
+        addMethods(ref.getSubTypesOf(Calculator.class));
+    }
+
+    private void addMethods(Set<Class<? extends Calculator>> classes) {
+        for (Class<?> theClass : classes) {
+            addMethods(theClass);
+        }
+    }
+
+    private void addMethods(Class<?> theClass) {
+        for (Method method : theClass.getDeclaredMethods()) {
+            if (!method.isAnnotationPresent(Operation.class)) continue;
+            methodBySignature.put(getSignature(method), method);
+        }
+    }

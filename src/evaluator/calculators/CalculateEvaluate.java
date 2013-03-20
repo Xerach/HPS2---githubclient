@@ -3,9 +3,16 @@ package evaluator.calculators;
 
 import evaluator.Type;
 import evaluator.calculator.number.OperationsNumberCalculator;
+import evaluator.calculators.annotations.Operators;
+import evaluator.nodes.Operation;
 import evaluator.nodes.Operator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Set;
+import org.reflections.Reflections;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 public class CalculateEvaluate implements Evaluate {
     
@@ -23,6 +30,40 @@ public class CalculateEvaluate implements Evaluate {
 //        return operatorMap.get(value);
 //    }
 
+    
+    static HashMap<String, Method> operatorMap;
+    
+    static {
+        operatorMap = new HashMap<>();
+     Reflections ref = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forJavaClassPath()));
+     addMethods(ref.getSubTypesOf(Calculator.class));
+    
+    }
+    
+    private static void addMethods(Set<Class<? extends Calculator>> classes) {
+        for (Class<?> theClass : classes) {
+            addMethods(theClass);
+        }
+    }
+    
+    private static void addMethods(Class<?> theClass) {
+        for (Method method : theClass.getDeclaredMethods()) {
+            if (!method.isAnnotationPresent(Operators.class)) continue;
+            operatorMap.put(getSignature(method), method);
+        }
+    }
+
+    private static String getSignature(Method method) {
+        String signature = method.getName();
+        Class<?>[] object;
+        object = method.getParameterTypes();
+        for(int i=0;i<object.length;i++){
+            signature += object[i].getSimpleName();
+        }
+        return signature;
+    }
+    
+    
     @Override
     public Type calculate(Operator operator, Type arg0, Type arg1) {
         Calculator calculator = findCalculator(arg0, arg1);
