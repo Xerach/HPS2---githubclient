@@ -36,4 +36,5 @@ public class OperatorAddTest {
         assertEquals(java.lang.Integer.class, node.evaluate().getValue().getClass());
         assertEquals(8, (int) node.evaluate().getValue());
     }
+   
 }

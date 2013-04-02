@@ -12,19 +12,20 @@ public class Syntax_treeTest {
 
     @Test
     public void testTree() {
-        out.print("Tree: 1 + 2 * 3 = ");
+        //out.print("Tree: 1 + 2 * 3 = ");
 
+        /*
         Node uno = new Constant(new Double(1.0));
         Node dos = new Constant(new Double(2.0));
         Node tres = new Constant(new Double(3.0));
         Node multi = new BinaryOperation(Operator.mul, dos, tres);
         Node sum = new BinaryOperation(Operator.add, uno, multi);
-        
+        */
     }
 
     @Test
     public void testTree2() {
-        out.print("Tree: 1 + 2 - 3 = ");
+        //out.print("Tree: 1 + 2 - 3 = ");
         
         Node uno = new Constant(new Double(1.0));
         Node dos = new Constant(new Double(2.0));

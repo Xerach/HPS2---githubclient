@@ -4,12 +4,13 @@ package evaluator.calculators;
 import evaluator.Type;
 import evaluator.calculator.number.OperationsNumberCalculator;
 import evaluator.calculators.annotations.Operators;
-import evaluator.nodes.Operation;
 import evaluator.nodes.Operator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -29,15 +30,13 @@ public class CalculateEvaluate implements Evaluate {
 //    public static Operator getOperator(String value) {
 //        return operatorMap.get(value);
 //    }
-
     
     static HashMap<String, Method> operatorMap;
     
     static {
         operatorMap = new HashMap<>();
-     Reflections ref = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forJavaClassPath()));
-     addMethods(ref.getSubTypesOf(Calculator.class));
-    
+        Reflections ref = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forJavaClassPath()));
+        addMethods(ref.getSubTypesOf(Calculator.class));
     }
     
     private static void addMethods(Set<Class<? extends Calculator>> classes) {
@@ -53,6 +52,7 @@ public class CalculateEvaluate implements Evaluate {
         }
     }
 
+    
     private static String getSignature(Method method) {
         String signature = method.getName();
         Class<?>[] object;
@@ -64,6 +64,14 @@ public class CalculateEvaluate implements Evaluate {
     }
     
     
+    
+    private static String getSignature(Operator operator, Type left, Type right) {
+        String signature = operator.getName() + left.getClass().getSimpleName() + right.getClass().getSimpleName();
+        return signature;
+    }
+    
+    
+    
     @Override
     public Type calculate(Operator operator, Type arg0, Type arg1) {
         Calculator calculator = findCalculator(arg0, arg1);
@@ -71,13 +79,18 @@ public class CalculateEvaluate implements Evaluate {
         if (operator == null || calculator == null) {
             return null;
         }
-        try {
-            //getsignature en lugar de getmethod
-            Method method = calculator.getClass().getMethod(operator.getName(), arg0.getValue().getClass(), arg1.getValue().getClass());
+            String namemethod = getSignature(operator,arg0,arg1);
+            Method method = operatorMap.get(namemethod);
+            
+        try {            
             return findType(method.invoke(calculator, arg0.getValue(), arg1.getValue()));
             //main_tree.hashmap_operator("+");
-        } catch (NoSuchMethodException | SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException ex) {
+        } catch (IllegalAccessException ex) {
             return null;
+        } catch (IllegalArgumentException ex) {
+           return null;
+        } catch (InvocationTargetException ex) {
+          return null;
         }
     }
 
