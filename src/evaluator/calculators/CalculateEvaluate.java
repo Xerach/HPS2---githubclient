@@ -9,27 +9,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 public class CalculateEvaluate implements Evaluate {
-    
-     
-//    private static HashMap<String, Operator> operatorMap;
-//
-//    static {
-//        operatorMap = new HashMap<>();
-//        operatorMap.put("+", Operator.add);
-//        operatorMap.put("-", Operator.subtract);
-//        operatorMap.put("*", Operator.mul);
-//    }
 
-//    public static Operator getOperator(String value) {
-//        return operatorMap.get(value);
-//    }
     
     static HashMap<String, Method> operatorMap;
     
@@ -62,35 +47,24 @@ public class CalculateEvaluate implements Evaluate {
         }
         return signature;
     }
-    
-    
-    
-    private static String getSignature(Operator operator, Type left, Type right) {
+   
+    private static String getNameMethod(Operator operator, Type left, Type right) {
         String signature = operator.getName() + left.getClass().getSimpleName() + right.getClass().getSimpleName();
         return signature;
     }
     
-    
-    
     @Override
     public Type calculate(Operator operator, Type arg0, Type arg1) {
         Calculator calculator = findCalculator(arg0, arg1);
-        
         if (operator == null || calculator == null) {
             return null;
         }
-            String namemethod = getSignature(operator,arg0,arg1);
-            Method method = operatorMap.get(namemethod);
-            
-        try {            
+        String namemethod = getNameMethod(operator, arg0, arg1);
+        Method method = operatorMap.get(namemethod);
+        try {
             return findType(method.invoke(calculator, arg0.getValue(), arg1.getValue()));
-            //main_tree.hashmap_operator("+");
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             return null;
-        } catch (IllegalArgumentException ex) {
-           return null;
-        } catch (InvocationTargetException ex) {
-          return null;
         }
     }
 
